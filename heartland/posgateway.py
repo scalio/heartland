@@ -11,15 +11,14 @@ class PosGateway():
     live_url = 'https://posgateway.secureexchange.net/Hps.Exchange.PosGateway/PosGatewayService.asmx?wsdl'
     test_url = 'https://posgateway.cert.secureexchange.net/Hps.Exchange.PosGateway/PosGatewayService.asmx?wsdl'
 
-    url = test_url
-
     def __init__(self, licenseid, siteid, deviceid,
                  username, password, tokenvalue=None,
                  sitetrace=None, developerid=None, versionnbr=None,
-                 clerkid=None):
+                 clerkid=None,
+                 url=test_url):
         if len(username) > 20:
             raise Exception('UserName must be no longer than 20 characters')
-        self.client = suds.client.Client(PosGateway.url)
+        self.client = suds.client.Client(url)
         # required
         self.licenseid = licenseid
         self.siteid = siteid
