@@ -8,7 +8,10 @@ import suds, suds.client
 class PosGateway():
     '''a class to talk SOAP to the HPS Exchange POS Gateway'''
 
-    url = 'https://posgateway.cert.secureexchange.net/Hps.Exchange.PosGateway.UAT/PosGatewayService.asmx?wsdl'
+    live_url = 'https://posgateway.secureexchange.net/Hps.Exchange.PosGateway/PosGatewayService.asmx?wsdl'
+    test_url = 'https://posgateway.cert.secureexchange.net/Hps.Exchange.PosGateway/PosGatewayService.asmx?wsdl'
+
+    url = test_url
 
     def __init__(self, licenseid, siteid, deviceid,
                  username, password, tokenvalue=None,
