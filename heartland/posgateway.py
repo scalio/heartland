@@ -3,7 +3,7 @@
 
 # TODO make sure the HTTPS certificate is verified
 
-import suds
+import suds, suds.client
 
 class PosGateway():
     '''a class to talk SOAP to the HPS Exchange POS Gateway'''
