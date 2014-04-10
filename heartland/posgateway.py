@@ -7,7 +7,6 @@ import suds
 import suds.client
 import suds.resolver
 from suds.plugin import MessagePlugin
-# from suds.sax.element import Element
 import logging
 import sys
 
@@ -61,16 +60,17 @@ class PosGateway():
                  sitetrace=None, developerid=None, versionnbr=None,
                  clerkid=None,
                  url=test_url):
+
         if len(username) > 20:
             raise Exception('UserName must be no longer than 20 characters')
 
-        trackDataPath = 'Body/PosRequest/Ver1.0/Transaction/CreditSale/Block1/CardData/TrackData'
+        trackDataPlugin = AttrSetterPlugin(attr_name='method',
+                                           attr_val='swiped',
+                                           target_path='Body/PosRequest/Ver1.0/Transaction',
+                                           target_name='TrackData')
 
-        self.client = suds.client.Client(url,
-                                         plugins=[AttrSetterPlugin(attr_name='method',
-                                                                   attr_val='swipe',
-                                                                   target_path='Body/PosRequest/Ver1.0/Transaction',
-                                                                   target_name='TrackData')])
+        self.client = suds.client.Client(url, plugins=[trackDataPlugin])
+
         # required
         self.licenseid = licenseid
         self.siteid = siteid
