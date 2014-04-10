@@ -3,7 +3,52 @@
 
 # TODO make sure the HTTPS certificate is verified
 
-import suds, suds.client
+import suds
+import suds.client
+import suds.resolver
+from suds.plugin import MessagePlugin
+# from suds.sax.element import Element
+import logging
+import sys
+
+handler = logging.StreamHandler(sys.stderr)
+logger = logging.getLogger('suds.transport.http')
+logger.setLevel(logging.DEBUG), handler.setLevel(logging.DEBUG)
+logger.addHandler(handler)
+
+class OutGoingFilter(logging.Filter):
+    def filter(self, record):
+        return record.msg.startswith('sending:')
+
+handler.addFilter(OutGoingFilter())
+
+
+class AttrSetterPlugin(MessagePlugin):
+
+    def __init__(self, attr_name, attr_val, target_name, target_path='Body'):
+        self.target_path = target_path
+        self.target_name = target_name
+        self.attr_name = attr_name
+        self.attr_val = attr_val
+
+    def marshalled(self, context):
+        def find_targets(target_path, target_name):
+            separator = '/'
+            current_path = target_path
+            for element in context.envelope.childAtPath(target_path).children:
+                if str(element.name) == target_name:
+                    targets.append(element)
+                find_targets(target_path + separator + element.name, target_name)
+
+        targets = []
+        if self.target_name:
+            find_targets(self.target_path, self.target_name)
+        else:
+            targets = [context.envelope.childAtPath(self.target_path)]
+
+        for target in targets:
+            target.set(self.attr_name, self.attr_val)
+
 
 class PosGateway():
     '''a class to talk SOAP to the HPS Exchange POS Gateway'''
@@ -18,7 +63,14 @@ class PosGateway():
                  url=test_url):
         if len(username) > 20:
             raise Exception('UserName must be no longer than 20 characters')
-        self.client = suds.client.Client(url)
+
+        trackDataPath = 'Body/PosRequest/Ver1.0/Transaction/CreditSale/Block1/CardData/TrackData'
+
+        self.client = suds.client.Client(url,
+                                         plugins=[AttrSetterPlugin(attr_name='method',
+                                                                   attr_val='swipe',
+                                                                   target_path='Body/PosRequest/Ver1.0/Transaction',
+                                                                   target_name='TrackData')])
         # required
         self.licenseid = licenseid
         self.siteid = siteid
