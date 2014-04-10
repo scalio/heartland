@@ -65,7 +65,7 @@ class PosGateway():
             raise Exception('UserName must be no longer than 20 characters')
 
         trackDataPlugin = AttrSetterPlugin(attr_name='method',
-                                           attr_val='swiped',
+                                           attr_val='swipe',
                                            target_path='Body/PosRequest/Ver1.0/Transaction',
                                            target_name='TrackData')
 
