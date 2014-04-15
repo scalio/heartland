@@ -147,6 +147,13 @@ class PosGateway():
         return self._dotransaction(self._newrequest('TestCredentials'))
 
 
+    def creditaccountverify(self, e3data):
+        """ verify a credit account without making a transaction """
+        posrequest = self._newcreditrequest('CreditAccountVerify', e3data, '0.00')
+        posrequest["Ver1.0"]["Transaction"]["CreditAccountVerify"]["Block1"].pop("Amt")
+        return self._dotransaction(posrequest)
+
+
     def creditsale(self, e3data, amount):
         '''make a CreditSale transaction of a given amount'''
         posrequest = self._newcreditrequest('CreditSale', e3data, amount)
