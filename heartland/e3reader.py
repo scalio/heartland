@@ -19,10 +19,10 @@ class E3Reader():
     @staticmethod
     def isvalid(swipedata):
         '''validate that we got a complete packet'''
-        if re.match("^<X1.*\|>$", swipedata):
+        if re.match(r'^<X1.*\|>$', swipedata):
             # "X1 = Error condition exist"
-            return False
-        if re.match("^<E1.+\|>$", swipedata):
+            return False, "swipe error"
+        if re.match(r'^<E1.+\|>$', swipedata):
             # E1 = Regular data output
             if len(swipedata.split('|')) != 11:
                 return False
