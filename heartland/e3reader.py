@@ -24,10 +24,12 @@ class E3Reader():
             return False, "swipe error"
         if re.match(r'^<E1.+\|>$', swipedata):
             # E1 = Regular data output
-            if len(swipedata.split('|')) != 11:
-                return False
-            return True
-        return False
+            fieldcount = len(swipedata.split('|'))
+            if fieldcount != 11:
+                return False, ("swipedata field count: " + str(fieldcount) + "/11, " +
+                              str(len(swipedata)) + " chars")
+            return True, swipedata
+        return False, "swipedata wrapper incomplete or malformed"
 
     def _parse(self):
         '''given a complete string from a Heartland E3 reader, parse data into a dict'''
