@@ -83,6 +83,7 @@ class PosGateway():
         self.developerid = developerid
         self.versionnbr = versionnbr
         self.clerkid = clerkid
+        self.url = url
 
 
     def _newrequest(self, transaction, value='PlaceholderText'):
