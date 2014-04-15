@@ -126,17 +126,20 @@ class PosGateway():
         return posrequest
 
 
+    def _checkresponse(self, posresponse):
+        """ returns tuple (bool success, response) """
+        responsemsg = posresponse['Ver1.0']['Header']['GatewayRspMsg']
+        success = responsemsg == 'Success'
+        return success, dict(posresponse)
+
+
     def _dotransaction(self, posrequest):
         """
         run a transaction, some don't have a value but suds needs
         something there to generate the XML properly
         """
         posresponse = self.client.service.DoTransaction(posrequest['Ver1.0'])
-        responsemsg = posresponse['Ver1.0']['Header']['GatewayRspMsg']
-        if responsemsg != 'Success':
-            raise Exception('Transaction failed: ' + responsemsg)
-        else:
-            return posresponse
+        return self._checkresponse(posresponse)
 
 
     def testcredentials(self):
