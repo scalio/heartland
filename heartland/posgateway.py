@@ -10,16 +10,10 @@ from suds.plugin import MessagePlugin
 import logging
 import sys
 
-handler = logging.StreamHandler(sys.stderr)
-logger = logging.getLogger('suds.transport.http')
-logger.setLevel(logging.DEBUG), handler.setLevel(logging.DEBUG)
-logger.addHandler(handler)
 
 class OutGoingFilter(logging.Filter):
     def filter(self, record):
         return record.msg.startswith('sending:')
-
-handler.addFilter(OutGoingFilter())
 
 
 class AttrSetterPlugin(MessagePlugin):
@@ -54,12 +48,19 @@ class PosGateway():
 
     live_url = 'https://posgateway.secureexchange.net/Hps.Exchange.PosGateway/PosGatewayService.asmx?wsdl'
     test_url = 'https://posgateway.cert.secureexchange.net/Hps.Exchange.PosGateway/PosGatewayService.asmx?wsdl'
+    log_http = logging.getLogger('suds.transport.http')
+    handler_stderr = logging.StreamHandler(sys.stderr)
 
     def __init__(self, licenseid, siteid, deviceid,
                  username, password, tokenvalue=None,
                  sitetrace=None, developerid=None, versionnbr=None,
                  clerkid=None,
-                 url=test_url):
+                 url=test_url, log_level=logging.ERROR):
+
+        self.log_http.setLevel(log_level)
+        self.handler_stderr.setLevel(log_level)
+        self.log_http.addHandler(self.handler_stderr)
+        self.handler_stderr.addFilter(OutGoingFilter())
 
         if len(username) > 20:
             raise Exception('UserName must be no longer than 20 characters')
@@ -180,7 +181,7 @@ if __name__ == '__main__':
     #logging.getLogger('suds.wsdl').setLevel(logging.DEBUG)
 
     pos = PosGateway('12345', '12345', '12345678', '12345678A', '$password',
-                        developerid='012345', versionnbr='1234')
+                        developerid='012345', versionnbr='1234', log_level=logging.INFO)
     #pos.testcredentials()
     e3data = open('testdata.txt', 'r').readline().rstrip('\n')
     print pos.creditsale(e3data, 5.23)
